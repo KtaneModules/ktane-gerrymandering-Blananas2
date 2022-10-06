@@ -114,7 +114,7 @@ public class gerrymanderingScript : MonoBehaviour {
         districts = chosenSize / blocSize;
         Debug.LogFormat("<Gerrymandering #{0}> There will be {1} {2}-minos, which is {3} blocs total.", moduleId, districts, blocSize, chosenSize);
 
-        NewArrangement:
+        //NewArrangement:
         int narwhal = 0;
         districts = 3; /// ZAMN
 
@@ -164,15 +164,23 @@ public class gerrymanderingScript : MonoBehaviour {
                     }
                 }
             }
-            if (placementAttempts < 99) {
-                goto NewMino;
+            Debug.Log("Placement attempts: " + placementAttempts);
+            Debug.Log("Found a fucking location: " + foundAFuckinLocation);
+            Debug.Log("Narwhal: " + narwhal);
+            Debug.Log("allison ecknhart");
+            placementAttempts = 0;
+            if (foundAFuckinLocation != blocSize) {
+                Debug.Log("dipshit! fuck you!");
+                //goto NewMino;
             }
             if (narwhal > 100) {
                 Debug.Log("FAILURE");
+                /*
                 for (int gex = 0; gex < arrangement.Count(); gex++) {
                     arrangement[gex] = deranged[gex];
                 }
                 goto NewArrangement;
+                */
             }
             for (int blow = 0; blow < blocSize; blow++) {
                 arrangement[(gridPlace[0] + xOff[blow]) + (gridPlace[1] + yOff[blow]) * 13] = base36[dis];
