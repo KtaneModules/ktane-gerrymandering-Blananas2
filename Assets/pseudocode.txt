@@ -1,0 +1,36 @@
+pick random PREFERREDCOLOR
+pick random AREA [see table below]
+scale properly, depends on AREA
+offset if AREA has even width and height
+pick random number BLOCS with range depending on AREA
+find "factors" of BLOCS (actually modulo number by BLOCSIZE)
+  if not divisible by 9,7,5,3: try again 
+    [the reason why I exclude evens is so that you can't have equal amount of blue/orange per district]
+  else pick highest of the above numbers
+divide BLOCS by BLOCSIZE to get DISTRICTS
+
+  "starting again" leads back here
+  
+for each DISTRICT
+  generate a polymino with BLOCS squares
+  choose random location within the area
+  if it can be placed, place it
+    otherwise, check if there is an empty space with at least BLOCS squares (?)
+      if there is, place polymino that fits
+      if there isn't, reset polymino arrangement and start again {falls apart here}
+set VALID to true if there is at least one square on all four edges and all squares are connected
+if not VALID, reset polymino arrangement and start again
+
+for each DISTRICT [we have two fors so we don't need to work out colors for failing arrangements]
+  if DISTRICT is even or 1, color majority (always minority plus 1) PREFERREDCOLOR
+    else color minority PREFERREDCOLOR
+	either way color remaining squares other color
+
+        area   
+ix|prob|h x w |scale
+--+----+------+-----
+0 |5%  |9 x 13|  1
+1 |15% |8 x 12| 1.075
+2 |40% |7 x 11| 1.175
+3 |25% |6 x 10| 1.275
+4 |15% |5 x 9 | 1.375
