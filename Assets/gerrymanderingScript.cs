@@ -27,7 +27,7 @@ public class gerrymanderingScript : MonoBehaviour {
     int districts = -1;
     int year = DateTime.Today.Year;
     char[] arrangement = {
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', //~~maybe ints are better for this?~~ actually nah
+        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', //maybe ints are better for this? actually nah
         '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
         '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
         '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
