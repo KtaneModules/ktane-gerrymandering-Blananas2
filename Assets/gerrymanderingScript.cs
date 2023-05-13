@@ -107,7 +107,7 @@ public class gerrymanderingScript : MonoBehaviour {
         while ((chosenSize % 9) * (chosenSize % 7) * (chosenSize % 5) * (chosenSize % 3) != 0) {
             chosenSize = UnityEngine.Random.Range(minSize, maxSize + 1);
         }
-        Text.text = String.Format("Deaf News LLC HQ {0}\n({1} Voters)", year, chosenSize);
+        Text.text = String.Format("Fantasia {0} District\n({1} Voters)", year, chosenSize);
         while (chosenSize % blocSize != 0) {
             blocSize -= 2;
         }
