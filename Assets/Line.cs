@@ -9,11 +9,13 @@ using KModkit;
 public class Line : MonoBehaviour {
 
     public KMSelectable[] Blocs;
+	public KMSelectable Test;
 	public SpriteRenderer[] Slots;
 	public Sprite[] Lines;
 
     bool holding = false;
-	int number = -1;
+	int number = 0;
+	int inc = 1;
 	int[] grid = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
 				   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
 				   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
@@ -25,8 +27,10 @@ public class Line : MonoBehaviour {
 				   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1  };
 
     void Start () {
+		inc = (Application.isEditor) ? 0 : 1;
+		Test.OnHighlight += delegate { number += 1; };
         foreach (KMSelectable Bloc in Blocs) {
-            Bloc.OnInteract += delegate () { holding = true; number += 1; BlocUpdate(Bloc); return false; };
+            Bloc.OnInteract += delegate () { holding = true; number += inc; BlocUpdate(Bloc); return false; };
 			Bloc.OnHighlight += delegate { BlocUpdate(Bloc); };
             Bloc.OnInteractEnded += delegate { holding = false; };
         }
