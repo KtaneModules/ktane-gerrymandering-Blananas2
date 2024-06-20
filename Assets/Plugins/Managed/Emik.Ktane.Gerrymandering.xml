@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>Emik.Ktane.Gerrymandering</name></assembly>
+<members>
+<member name="P:System.Runtime.Versioning.TargetFrameworkAttribute.FrameworkDisplayName(System.String)">
+<summary>
+ Gets the display name of the .NET version against which an assembly was built.
+</summary>
+</member>
+<member name="P:System.Runtime.Versioning.TargetFrameworkAttribute.FrameworkName">
+<summary>
+ Gets the name of the .NET version against which a particular assembly was compiled.
+</summary>
+</member>
+<member name="P:System.Runtime.Versioning.TargetFrameworkAttribute.FrameworkDisplayName">
+<summary>
+ Gets the display name of the .NET version against which an assembly was built.
+</summary>
+</member>
+<member name="T:System.Runtime.Versioning.TargetFrameworkAttribute">
+<summary>
+ Identifies the version of .NET that a particular assembly was compiled against.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.dropRight``3(``0,``1,``2)">
+<summary>
+ Drops the third element from the tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.dropMiddle``3(``0,``1,``2)">
+<summary>
+ Drops the second element from the tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.dropLeft``3(``0,``1,``2)">
+<summary>
+ Drops the first element from the tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.invoke``1(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,``0})">
+<summary>
+ Invokes the function.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.uncurry7``8(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.FSharpFunc{``3,Microsoft.FSharp.Core.FSharpFunc{``4,Microsoft.FSharp.Core.FSharpFunc{``5,Microsoft.FSharp.Core.FSharpFunc{``6,``7}}}}}}},``0,``1,``2,``3,``4,``5,``6)">
+<summary>
+ Converts the 7-argument curried function with the tupled equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.uncurry6``7(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.FSharpFunc{``3,Microsoft.FSharp.Core.FSharpFunc{``4,Microsoft.FSharp.Core.FSharpFunc{``5,``6}}}}}},``0,``1,``2,``3,``4,``5)">
+<summary>
+ Converts the 6-argument curried function with the tupled equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.uncurry5``6(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.FSharpFunc{``3,Microsoft.FSharp.Core.FSharpFunc{``4,``5}}}}},``0,``1,``2,``3,``4)">
+<summary>
+ Converts the 5-argument curried function with the tupled equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.uncurry4``5(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.FSharpFunc{``3,``4}}}},``0,``1,``2,``3)">
+<summary>
+ Converts the 4-argument curried function with the tupled equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.uncurry3``4(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,Microsoft.FSharp.Core.FSharpFunc{``2,``3}}},``0,``1,``2)">
+<summary>
+ Converts the 3-argument curried function with the tupled equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.uncurry``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2}},``0,``1)">
+<summary>
+ Converts the 2-argument curried function with the tupled equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.tuple7``7(``0,``1,``2,``3,``4,``5,``6)">
+<summary>
+ Maps the 7 arguments into a tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.tuple6``6(``0,``1,``2,``3,``4,``5)">
+<summary>
+ Maps the 6 arguments into a tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.tuple5``5(``0,``1,``2,``3,``4)">
+<summary>
+ Maps the 5 arguments into a tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.tuple4``4(``0,``1,``2,``3)">
+<summary>
+ Maps the 4 arguments into a tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.tuple3``3(``0,``1,``2)">
+<summary>
+ Maps the 3 arguments into a tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.tuple``2(``0,``1)">
+<summary>
+ Maps the 2 arguments into a tuple.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.curry7``8(Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1,``2,``3,``4,``5,``6},``7},``0,``1,``2,``3,``4,``5,``6)">
+<summary>
+ Converts the 7-tupled function with the curried equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.curry6``7(Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1,``2,``3,``4,``5},``6},``0,``1,``2,``3,``4,``5)">
+<summary>
+ Converts the 6-tupled function with the curried equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.curry5``6(Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1,``2,``3,``4},``5},``0,``1,``2,``3,``4)">
+<summary>
+ Converts the 5-tupled function with the curried equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.curry4``5(Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1,``2,``3},``4},``0,``1,``2,``3)">
+<summary>
+ Converts the 4-tupled function with the curried equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.curry3``4(Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1,``2},``3},``0,``1,``2)">
+<summary>
+ Converts the 3-tupled function with the curried equivalent.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Courier.curry``3(Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1},``2},``0,``1)">
+<summary>
+ Converts the 2-tupled function with the curried equivalent.
+</summary>
+</member>
+<member name="T:Emik.Morsels.Courier">
+<summary>
+ Provides functions to convert tupled functions into curried.
+</summary>
+</member>
+<member name="M:Emik.Morsels.FunctionOperators.op_LessBarBarGreater``1(Microsoft.FSharp.Core.FSharpFunc{``0,System.Boolean},Microsoft.FSharp.Core.FSharpFunc{``0,System.Boolean},``0)">
+<summary>
+ Combines two predicate functions together in eager OR form.
+</summary>
+</member>
+<member name="M:Emik.Morsels.FunctionOperators.op_LessAmpAmpGreater``1(Microsoft.FSharp.Core.FSharpFunc{``0,System.Boolean},Microsoft.FSharp.Core.FSharpFunc{``0,System.Boolean},``0)">
+<summary>
+ Combines two predicate functions together in eager AND form.
+</summary>
+</member>
+<member name="T:Emik.Morsels.FunctionOperators">
+<summary>
+ Defines operators for functions.
+</summary>
+</member>
+<member name="M:Emik.Morsels.FunctionWrappers.time``1(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,``0})">
+<summary>
+ Discards the result of the function and instead gives the execution time.
+</summary>
+</member>
+<member name="M:Emik.Morsels.FunctionWrappers.memoize``2(Microsoft.FSharp.Core.FSharpFunc{``0,``1})">
+<summary>
+ Wraps the function around a dictionary such that subsequent
+ calls to the returned memoized function will retrieve a cached
+ result if the argument given has been evaluated before.
+ The function argument is assumed to be deterministic.
+</summary>
+</member>
+<member name="T:Emik.Morsels.FunctionWrappers">
+<summary>
+ Declares higher-order functions that decorate pre-existing functions.
+</summary>
+</member>
+<member name="M:Emik.Morsels.OptionExtensions.Option`1.getOr``1(Microsoft.FSharp.Core.FSharpOption{``0},Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,``0})">
+<summary>
+ Gets the value, or invokes the callback.
+</summary>
+</member>
+<member name="M:Emik.Morsels.OptionExtensions.Option`1.getOr``1(Microsoft.FSharp.Core.FSharpOption{``0},``0)">
+<summary>
+ Gets the value, or the fallback.
+</summary>
+</member>
+<member name="T:Emik.Morsels.OptionExtensions">
+<summary>
+ Extension methods for option types.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.tryPickRandom``2(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,``0}},System.Collections.Generic.IEnumerable{``1})">
+<summary>
+ Attempts to pick a random element from a sequence based on a function.
+ Returns None if the sequence is empty.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.toBoolRng``1(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,System.Int32}},``0)">
+<summary>
+ Makes the boolean generator out of the number generator.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.pickIndex4``2(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,``0}},``1[0:, 0:, 0:])">
+<summary>
+ Picks the random index from the sequence based on the function.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.pickIndex3``2(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,``0}},``1[0:, 0:])">
+<summary>
+ Picks the random index from the sequence based on the function.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.pickIndex2``2(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,``0}},``1[0:])">
+<summary>
+ Picks the random index from the sequence based on the function.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.pickIndex``2(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,``0}},``1[])">
+<summary>
+ Picks the random index from the sequence based on the function.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.pickRandom``2(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,``0}},System.Collections.Generic.IEnumerable{``1})">
+<summary>
+ Picks the random element from the sequence based on the function.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Randomizer.shuffle``2(Microsoft.FSharp.Core.FSharpFunc{System.Int32,Microsoft.FSharp.Core.FSharpFunc{System.Int32,``0}},System.Collections.Generic.IEnumerable{``1})">
+<summary>
+ Shuffles the sequence based on the function.
+</summary>
+</member>
+<member name="T:Emik.Morsels.Randomizer">
+<summary>
+ Defines operators for functions.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.remove``1(``0,Microsoft.FSharp.Collections.FSharpList{``0})">
+<summary>
+ Removes the item from the list. Only the first occurence of the item will be removed.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.tryGet4``1(System.Int32,System.Int32,System.Int32,System.Int32,``0[0:, 0:, 0:])">
+<summary>
+ Returns the corresponding index if in range for a 4D array, else None.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.tryGet3``1(System.Int32,System.Int32,System.Int32,``0[0:, 0:])">
+<summary>
+ Returns the corresponding index if in range for a 3D array, else None.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.tryGet``1(System.Int32,System.Int32,``0[0:])">
+<summary>
+ Returns the corresponding index if in range for a 2D array, else None.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.toSeq4``1(``0[0:, 0:, 0:])">
+<summary>
+ Gets the sequence from the 4D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.toSeq3``1(``0[0:, 0:])">
+<summary>
+ Gets the sequence from the 3D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.toSeq``1(``0[0:])">
+<summary>
+ Gets the sequence from the 2D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.toJagged4``1(``0[0:, 0:, 0:])">
+<summary>
+ Gets the jagged array from the 4D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.toJagged3``1(``0[0:, 0:])">
+<summary>
+ Gets the jagged array from the 3D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.toJagged``1(``0[0:])">
+<summary>
+ Gets the jagged array from the 2D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.inBounds4``1(System.Int32,System.Int32,System.Int32,System.Int32,``0[0:, 0:, 0:])">
+<summary>
+ Determines whether the coordinates are in range for a 4D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.inBounds3``1(System.Int32,System.Int32,System.Int32,``0[0:, 0:])">
+<summary>
+ Determines whether the coordinates are in range for a 3D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.inBounds``1(System.Int32,System.Int32,``0[0:])">
+<summary>
+ Determines whether the coordinates are in range for a 2D array.
+</summary>
+</member>
+<member name="M:Emik.Morsels.Sequencer.contains``1(``0,System.Collections.Generic.IEnumerable{``0})">
+<summary>
+ Determines whether any element in the sequence is equal to the argument.
+</summary>
+</member>
+<member name="T:Emik.Morsels.Sequencer">
+<summary>
+ Defines functions for creating sequences.
+</summary>
+</member>
+</members>
+</doc>

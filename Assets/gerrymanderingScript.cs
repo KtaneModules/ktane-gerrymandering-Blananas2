@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
+using Emik.Ktane.Gerrymandering;
+using Microsoft.FSharp.Core;
+using Microsoft.FSharp.Collections;
 
 public class gerrymanderingScript : MonoBehaviour {
 
@@ -45,6 +48,18 @@ public class gerrymanderingScript : MonoBehaviour {
     int moduleId;
     private bool moduleSolved;
 
+    class Rng : OptimizedClosures.FSharpFunc<int, int, int> {
+        public Rng(Func<int, int, int> func) {
+            _func = func;
+        }
+
+        Func<int, int, int> _func;
+
+        public override int Invoke(int low, int high) {
+            return _func(low, high);
+        }
+    }
+
     void Awake () {
         moduleId = moduleIdCounter++;
         /*
@@ -59,6 +74,27 @@ public class gerrymanderingScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        var Rand = new Rng((x, y) => UnityEngine.Random.Range(x, y));
+
+        var Answer = new List<FSharpList<Tuple<int, int>>>();
+        var Matrix = new Hue[6,8]; //size of grid
+        var Puzzle = new Puzzle(Answer, Matrix, Hue.Blue); //winner
+
+        Puzzle.Run(Rand, 3, 12); //number of blocs per district, number of districts //IMPORTANT: MAKE SURE THERE'S ENOUGH SPACE WITHIN GRID, GIVE IT A BIT OF BREATHING ROOM
+
+        Debug.Log(Cell.ShowMatrix(Puzzle.Cells));
+
+        foreach (var Bloc in Puzzle.Answer) {
+            foreach (var Cell in Bloc) {
+                Debug.Log(Cell);
+            }
+            Debug.Log("mort");
+        }
+
+        //Debug.Log(Cell.ShowMatrix(Puzzle.Cells));
+
+        return; // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+
         bluePreffered = UnityEngine.Random.Range(0, 2) == 0;
         Debug.LogFormat("[Gerrymandering #{0}] {1} is your party's color.", moduleId, bluePreffered ? "Blue" : "Orange");
         Envelope.sprite = EnvColors[bluePreffered ? 0 : 1];
