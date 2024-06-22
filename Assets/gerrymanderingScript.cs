@@ -14,6 +14,9 @@ public class gerrymanderingScript : MonoBehaviour {
     public KMBombInfo Bomb;
     public KMAudio Audio;
     public KMSelectable[] Blocs;
+    public KMSelectable Test;
+	public SpriteRenderer[] Slots;
+	public Sprite[] Lines;
     public GameObject[] BlocObjs;
     public GameObject BlocPivot;
     public Material[] PartyColors;
@@ -28,20 +31,21 @@ public class gerrymanderingScript : MonoBehaviour {
     int chosenSize = -1;
     int blocSize = 9;
     int districts = -1;
-    int year = DateTime.Today.Year;
-    char[] arrangement = {
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', //maybe ints are better for this? actually nah
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-        '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'
-    };
-    char[] deranged = { '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.' };
-    string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    readonly int year = DateTime.Today.Year;
+    int gridOffset = 0;
+    string PrettyMatrix;
+    bool holding = false;
+	int marker = 0;
+	int inc = 1;
+    int[] lineGrid = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
     //Logging
     static int moduleIdCounter = 1;
@@ -62,38 +66,18 @@ public class gerrymanderingScript : MonoBehaviour {
 
     void Awake () {
         moduleId = moduleIdCounter++;
-        /*
-        foreach (KMSelectable object in keypad) {
-            object.OnInteract += delegate () { keypadPress(object); return false; };
+        inc = (Application.isEditor) ? 0 : 1;
+		Test.OnHighlight += delegate { marker += 1; };
+        foreach (KMSelectable Bloc in Blocs) {
+            Bloc.OnInteract += delegate () { holding = true; marker += inc; BlocUpdate(Bloc); return false; };
+			Bloc.OnHighlight += delegate { BlocUpdate(Bloc); };
+            Bloc.OnInteractEnded += delegate { holding = false; /*TODO: check for a solve here*/ };
         }
-        */
-
-        //button.OnInteract += delegate () { buttonPress(); return false; };
-
     }
 
     // Use this for initialization
     void Start () {
-        var Rand = new Rng((x, y) => UnityEngine.Random.Range(x, y));
-
-        var Answer = new List<FSharpList<Tuple<int, int>>>();
-        var Matrix = new Hue[6,8]; //size of grid
-        var Puzzle = new Puzzle(Answer, Matrix, Hue.Blue); //winner
-
-        Puzzle.Run(Rand, 3, 12); //number of blocs per district, number of districts //IMPORTANT: MAKE SURE THERE'S ENOUGH SPACE WITHIN GRID, GIVE IT A BIT OF BREATHING ROOM
-
-        Debug.Log(Cell.ShowMatrix(Puzzle.Cells));
-
-        foreach (var Bloc in Puzzle.Answer) {
-            foreach (var Cell in Bloc) {
-                Debug.Log(Cell);
-            }
-            Debug.Log("mort");
-        }
-
-        //Debug.Log(Cell.ShowMatrix(Puzzle.Cells));
-
-        return; // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+        //TODO: if application isnt editor remove test button automatically
 
         bluePreffered = UnityEngine.Random.Range(0, 2) == 0;
         Debug.LogFormat("[Gerrymandering #{0}] {1} is your party's color.", moduleId, bluePreffered ? "Blue" : "Orange");
@@ -106,6 +90,7 @@ public class gerrymanderingScript : MonoBehaviour {
         else if (area < 60) { area = 2; }
         else if (area < 85) { area = 3; }
         else                { area = 4; }
+        //area = 4; //ZAMN
 
         height = 9 - area;
         width = height + 4;
@@ -126,20 +111,17 @@ public class gerrymanderingScript : MonoBehaviour {
                 bool valid = true;
                 
                 if (xPos == 12 | yPos == 8)               { valid = false; }
-                if (area >= 2 & (xPos == 0 | yPos == 0))  { valid = false; }
+                if (area >= 2 & (xPos == 0 | yPos == 0))  { valid = false; gridOffset = 1; }
                 if (area >= 3 & (xPos == 11 | yPos == 7)) { valid = false; }
-                if (area == 4 & (xPos == 1 | yPos == 1))  { valid = false; }
+                if (area == 4 & (xPos == 1 | yPos == 1))  { valid = false; gridOffset = 2; }
                 
                 BlocObjs[blok].SetActive(valid);
-                if (!valid) {
-                    arrangement[blok] = 'X';
-                    deranged[blok] = 'X';
-                }
             }
         }
         BlocPivot.transform.localScale = new Vector3(scaleFactor, 1f, scaleFactor);
 
         chosenSize = UnityEngine.Random.Range(minSize, maxSize + 1);
+        //chosenSize = 12; //ZAMN
         while ((chosenSize % 9) * (chosenSize % 7) * (chosenSize % 5) * (chosenSize % 3) != 0) {
             chosenSize = UnityEngine.Random.Range(minSize, maxSize + 1);
         }
@@ -150,86 +132,74 @@ public class gerrymanderingScript : MonoBehaviour {
         districts = chosenSize / blocSize;
         Debug.LogFormat("<Gerrymandering #{0}> There will be {1} {2}-minos, which is {3} blocs total.", moduleId, districts, blocSize, chosenSize);
 
-        //NewArrangement:
-        int narwhal = 0;
-        districts = 3; /// ZAMN
+        var Rand = new Rng((x, y) => UnityEngine.Random.Range(x, y));
+        var Answer = new List<FSharpList<Tuple<int, int>>>();
+        var Matrix = new Hue[height, width];
+        var Puzzle = new Puzzle(Answer, Matrix, bluePreffered ? Hue.Blue : Hue.Orange);
 
-        for (int dis = 0; dis < districts; dis++) {
-            NewMino:
-            narwhal += 1;
-            int[] xOff = { 0, -999, -999, -999, -999, -999, -999, -999, -999 };
-            int[] yOff = { 0, -999, -999, -999, -999, -999, -999, -999, -999 };
-            int[] cOff = { -999, -999 };
+        Debug.Log(districts);
+        Puzzle.Run(Rand, blocSize, districts, TimeSpan.FromSeconds(5));
+        PrettyMatrix = Cell.ShowMatrix(Puzzle.Cells);
+        Debug.LogFormat("[Gerrymandering #{0}] Given Matrix:\n{1}", moduleId, PrettyMatrix);
+        ProcessMatrix();
+    }
 
-            for (int bloq = 1; bloq < blocSize; bloq++) {
-                int rPos = UnityEngine.Random.Range(0, bloq-1);
-                NewLocation:
-                cOff[0] = xOff[rPos]; 
-                cOff[1] = yOff[rPos];
-                int rDir = UnityEngine.Random.Range(0, 4);
-                switch (rDir) {
-                    case 0: cOff[1] -= 1; break;
-                    case 1: cOff[0] += 1; break;
-                    case 2: cOff[1] += 1; break;
-                    case 3: cOff[0] -= 1; break;
-                }
-                for (int rix = 0; rix < bloq; rix++) {
-                    if (xOff[rix] == cOff[0] && yOff[rix] == cOff[1]) {
-                        goto NewLocation;
-                    }
-                }
-                xOff[bloq] = cOff[0]; yOff[bloq] = cOff[1];
-            }
-
-            int[] gridPlace = {6, 4};
-
-            int foundAFuckinLocation = 0;
-            int placementAttempts = 0;
-
-            while (foundAFuckinLocation != blocSize | placementAttempts < 100) {
-                gridPlace[0] = UnityEngine.Random.Range(0, 13);
-                gridPlace[1] = UnityEngine.Random.Range(0, 9);
-                placementAttempts += 1;
-                foundAFuckinLocation = 0;
-                for (int blc = 0; blc < blocSize; blc++) {
-                    if (gridPlace[0]+xOff[blc] < 0 | gridPlace[0]+xOff[blc] > 12 | gridPlace[1]+yOff[blc] < 0 | gridPlace[1]+yOff[blc] > 8) {
-                        //thog don't caare
-                    }
-                    else if (arrangement[(gridPlace[1]+yOff[blc])*13 + (gridPlace[0]+xOff[blc])] == '.') {
-                        foundAFuckinLocation += 1;
-                    }
+    void ProcessMatrix() {
+        string AwfulMatrix = PrettyMatrix.Replace("+", " ").Replace("-", " ").Replace("|", " ").Replace("\n", ";");
+        Debug.LogFormat("<Gerrymandering #{0}> Awfuled: \'{1}\'", moduleId, AwfulMatrix);
+        string[] SplitAwful = AwfulMatrix.Split(';');
+        Debug.LogFormat("<Gerrymandering #{0}> Splitted: \'{1}\'", moduleId, SplitAwful.Join("', '"));
+        int zr = -1;
+        int zc = -1;
+        for (int ar = 1; ar < SplitAwful.Length; ar += 2) {
+            zr++;
+            for (int ac = 2; ac < SplitAwful[ar].Length; ac += 4) {
+                zc++;
+                switch (SplitAwful[ar][ac]) {
+                    case ' ': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].SetActive(false); break;
+                    case 'X': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].GetComponent<MeshRenderer>().material = PartyColors[0]; break;
+                    case 'O': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].GetComponent<MeshRenderer>().material = PartyColors[1]; break;
                 }
             }
-            Debug.Log("Placement attempts: " + placementAttempts);
-            Debug.Log("Found a fucking location: " + foundAFuckinLocation);
-            Debug.Log("Narwhal: " + narwhal);
-            Debug.Log("allison ecknhart");
-            placementAttempts = 0;
-            if (foundAFuckinLocation != blocSize) {
-                Debug.Log("dipshit! fuck you!");
-                //goto NewMino;
-            }
-            if (narwhal > 100) {
-                Debug.Log("FAILURE");
-                /*
-                for (int gex = 0; gex < arrangement.Count(); gex++) {
-                    arrangement[gex] = deranged[gex];
-                }
-                goto NewArrangement;
-                */
-            }
-            for (int blow = 0; blow < blocSize; blow++) {
-                arrangement[(gridPlace[0] + xOff[blow]) + (gridPlace[1] + yOff[blow]) * 13] = base36[dis];
-            }
+            zc = -1;
         }
-
-        Debug.Log(new string(arrangement));
     }
 
-    /*
-    void keypadPress(KMSelectable object) {
-        
+    void BlocUpdate(KMSelectable Bloc) {
+        for (int b = 0; b < Blocs.Length; b++) {
+			if (Bloc == Blocs[b]) {
+				UpdateLines(b);
+			}
+		}
     }
-    */
 
+	void UpdateLines(int x) {
+		if (!holding) { return; }
+		lineGrid[x] = marker;
+		for (int b = 0; b < 117; b++) {
+			if (lineGrid[b] == -1) { continue; }
+			int total = 0;
+			if (b / 13 != 0) {
+				if (lineGrid[b-13] == lineGrid[b]) {
+					total += 1;
+				}
+			}
+			if (b % 13 != 0) {
+				if (lineGrid[b-1] == lineGrid[b]) {
+					total += 2;
+				}
+			}
+			if (b / 13 != 8) {
+				if (lineGrid[b+13] == lineGrid[b]) {
+					total += 4;
+				}
+			}
+			if (b % 13 != 12) {
+				if (lineGrid[b+1] == lineGrid[b]) {
+					total += 8;
+				}
+			}
+			Slots[b].sprite = Lines[total];
+		}
+	}
 }

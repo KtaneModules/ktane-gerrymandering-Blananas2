@@ -1,0 +1,12 @@
+var Rand = new Rng((x, y) => {
+    var ret = UnityEngine.Random.Range(x, y);
+    Debug.LogFormat("{0}-{1} = {2}", x, y, ret);
+    return ret;
+});
+
+foreach (var Bloc in Puzzle.Answer) {
+    foreach (var Cell in Bloc) {
+        Debug.Log(Cell);
+    }
+    Debug.Log("mort");
+}
