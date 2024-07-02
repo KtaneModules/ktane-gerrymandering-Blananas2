@@ -127,7 +127,7 @@ public class gerrymanderingScript : MonoBehaviour {
         }
         Text.text = String.Format("Fantasia {0} District\n({1} Voters)", year, chosenSize);
         while (chosenSize % blocSize != 0) {
-            blocSize -= 2;
+            blocSize -= 1;
         }
         districts = chosenSize / blocSize;
         Debug.LogFormat("<Gerrymandering #{0}> There will be {1} {2}-minos, which is {3} blocs total.", moduleId, districts, blocSize, chosenSize);
@@ -137,8 +137,8 @@ public class gerrymanderingScript : MonoBehaviour {
         var Matrix = new Hue[height, width];
         var Puzzle = new Puzzle(Answer, Matrix, bluePreffered ? Hue.Blue : Hue.Orange);
 
-        Debug.Log(districts);
-        Puzzle.Run(Rand, blocSize, districts, TimeSpan.FromSeconds(5));
+        Debug.Assert(Puzzle.Run(Rand, blocSize, districts, TimeSpan.FromSeconds(1)));
+        
         PrettyMatrix = Cell.ShowMatrix(Puzzle.Cells);
         Debug.LogFormat("[Gerrymandering #{0}] Given Matrix:\n{1}", moduleId, PrettyMatrix);
         ProcessMatrix();
