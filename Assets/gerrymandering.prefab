@@ -22748,6 +22748,7 @@ MonoBehaviour:
   - {fileID: 1843321342413760}
   - {fileID: 1080135243065526}
   BlocPivot: {fileID: 1129123397838400}
+  TestObj: {fileID: 1219704173743424}
   PartyColors:
   - {fileID: 2100000, guid: e7ab4cff6806b8f4db5ffae050548796, type: 2}
   - {fileID: 2100000, guid: d1db11703bc347346896b6b0e9c4ee81, type: 2}

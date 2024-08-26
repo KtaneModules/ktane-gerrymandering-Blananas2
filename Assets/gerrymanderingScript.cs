@@ -19,6 +19,7 @@ public class gerrymanderingScript : MonoBehaviour {
 	public Sprite[] Lines;
     public GameObject[] BlocObjs;
     public GameObject BlocPivot;
+    public GameObject TestObj;
     public Material[] PartyColors;
     public SpriteRenderer Envelope;
     public Sprite[] EnvColors;
@@ -34,6 +35,7 @@ public class gerrymanderingScript : MonoBehaviour {
     readonly int year = DateTime.Today.Year;
     int gridOffset = 0;
     string PrettyMatrix;
+    string TheColorsOfMatrix = "";
     bool holding = false;
 	int marker = 0;
 	int inc = 1;
@@ -66,18 +68,18 @@ public class gerrymanderingScript : MonoBehaviour {
 
     void Awake () {
         moduleId = moduleIdCounter++;
-        inc = (Application.isEditor) ? 0 : 1;
+        inc = Application.isEditor ? 0 : 1;
 		Test.OnHighlight += delegate { marker += 1; };
         foreach (KMSelectable Bloc in Blocs) {
             Bloc.OnInteract += delegate () { holding = true; marker += inc; BlocUpdate(Bloc); return false; };
 			Bloc.OnHighlight += delegate { BlocUpdate(Bloc); };
-            Bloc.OnInteractEnded += delegate { holding = false; /*TODO: check for a solve here*/ };
+            Bloc.OnInteractEnded += delegate { holding = false; };
         }
     }
 
     // Use this for initialization
     void Start () {
-        //TODO: if application isnt editor remove test button automatically
+        TestObj.SetActive(Application.isEditor);
 
         bluePreffered = UnityEngine.Random.Range(0, 2) == 0;
         Debug.LogFormat("[Gerrymandering #{0}] {1} is your party's color.", moduleId, bluePreffered ? "Blue" : "Orange");
@@ -122,7 +124,7 @@ public class gerrymanderingScript : MonoBehaviour {
 
         chosenSize = UnityEngine.Random.Range(minSize, maxSize + 1);
         //chosenSize = 12; //ZAMN
-        while ((chosenSize % 9) * (chosenSize % 7) * (chosenSize % 5) * (chosenSize % 3) != 0) {
+        while (((chosenSize % 9) * (chosenSize % 7) * (chosenSize % 5) * (chosenSize % 3) != 0) || ((chosenSize % 2) == 0)) {
             chosenSize = UnityEngine.Random.Range(minSize, maxSize + 1);
         }
         Text.text = String.Format("Fantasia {0} District\n({1} Voters)", year, chosenSize);
@@ -151,18 +153,32 @@ public class gerrymanderingScript : MonoBehaviour {
         Debug.LogFormat("<Gerrymandering #{0}> Splitted: \'{1}\'", moduleId, SplitAwful.Join("', '"));
         int zr = -1;
         int zc = -1;
+        while (TheColorsOfMatrix.Length != gridOffset*13) {
+            TheColorsOfMatrix += ' ';
+        }
         for (int ar = 1; ar < SplitAwful.Length; ar += 2) {
             zr++;
+            while (TheColorsOfMatrix.Length % 13 != gridOffset) {
+                TheColorsOfMatrix += ' ';
+            }
             for (int ac = 2; ac < SplitAwful[ar].Length; ac += 4) {
                 zc++;
+                TheColorsOfMatrix += SplitAwful[ar][ac];
                 switch (SplitAwful[ar][ac]) {
                     case ' ': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].SetActive(false); break;
                     case 'X': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].GetComponent<MeshRenderer>().material = PartyColors[0]; break;
                     case 'O': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].GetComponent<MeshRenderer>().material = PartyColors[1]; break;
                 }
             }
+            while (TheColorsOfMatrix.Length % 13 != 0) {
+                TheColorsOfMatrix += ' ';
+            }
             zc = -1;
         }
+        while (TheColorsOfMatrix.Length != 117) {
+            TheColorsOfMatrix += ' ';
+        }
+        Debug.LogFormat("<Gerrymandering #{0}> Color: \'{1}\'", moduleId, TheColorsOfMatrix);
     }
 
     void BlocUpdate(KMSelectable Bloc) {
@@ -176,8 +192,10 @@ public class gerrymanderingScript : MonoBehaviour {
 	void UpdateLines(int x) {
 		if (!holding) { return; }
 		lineGrid[x] = marker;
+        int lineCount = 0;
 		for (int b = 0; b < 117; b++) {
 			if (lineGrid[b] == -1) { continue; }
+            lineCount++;
 			int total = 0;
 			if (b / 13 != 0) {
 				if (lineGrid[b-13] == lineGrid[b]) {
@@ -201,5 +219,99 @@ public class gerrymanderingScript : MonoBehaviour {
 			}
 			Slots[b].sprite = Lines[total];
 		}
+        if (lineCount == chosenSize) {
+            if (CheckLineValidity()) {
+                Debug.LogFormat("[Gerrymandering #{0}] {1}", moduleId, lineGrid.Join(",")); //this can be done WAYYYYYYYYY better
+                Debug.LogFormat("[Gerrymandering #{0}] Valid districts given, module solved.", moduleId);
+                GetComponent<KMBombModule>().HandlePass();
+            }
+        }
 	}
+
+    bool CheckLineValidity() {
+        List<int> ids = new List<int> { };
+        int[] sides = { 0, 0 };
+
+        for (int gridIx = 0; gridIx < 117; gridIx++) {
+            int atIx = lineGrid[gridIx];
+            if (atIx == -1 || ids.Contains(atIx)) { continue; }
+            if (lineGrid.Where(e => e == atIx).Count() != blocSize) {
+                Debug.Log("<gery> found district with invalid number of blocs");
+                return false;
+            }
+            if (!Orth(gridIx, atIx)) {
+                Debug.Log("<gery> found district with blocs not orthogonally adjacent");
+                return false;
+            }
+            sides[Pref(atIx) ? 0 : 1]++;
+
+            ids.Add(atIx);
+        }
+
+        return bluePreffered ? (sides[0] > sides[1]) : (sides[0] < sides[1]);
+    }
+
+    bool Orth(int g, int v) {
+        int count = 1;
+        int[] gridTWO = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+        gridTWO[g] = 1;
+        for (int q = 0; q < 117; q++) {
+            if (gridTWO[q] == -1) { continue; }
+            if (q / 13 != 0) {
+                if (lineGrid[q-13] == v && gridTWO[q-13] == -1) {
+                    gridTWO[q-13] = 1;
+                    count++;
+                    q = 0;
+                    continue;
+                }
+            }
+            if (q % 13 != 0) {
+                if (lineGrid[q-1] == v && gridTWO[q-1] == -1) {
+                    gridTWO[q-1] = 1;
+                    count++;
+                    q = 0;
+                    continue;
+                }
+            }
+            if (q % 13 != 12) {
+                if (lineGrid[q+1] == v && gridTWO[q+1] == -1) {
+                    gridTWO[q+1] = 1;
+                    count++;
+                    q = 0;
+                    continue;
+                }
+            }
+            if (q / 13 != 8) {
+                if (lineGrid[q+13] == v && gridTWO[q+13] == -1) {
+                    gridTWO[q+13] = 1;
+                    count++;
+                    q = 0;
+                    continue;
+                }
+            }
+        }
+        return count == blocSize;
+    }
+
+    bool Pref(int v) {
+        int[] subsides = { 0, 0 };
+        for (int q = 0; q < 117; q++) {
+            if (lineGrid[q] == v) {
+                switch (TheColorsOfMatrix[q]) {
+                    case 'X': subsides[0]++; break;
+                    case 'O': subsides[1]++; break;
+                    default: Debug.Log("<Gerrymandering> default case in Pref, this is a bug!!!!!!!!!!"); break;
+                }
+            }
+        }
+        return subsides[0] > subsides[1];
+    }
 }
