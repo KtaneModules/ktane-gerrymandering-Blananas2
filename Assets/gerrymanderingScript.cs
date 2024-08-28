@@ -68,8 +68,11 @@ public class gerrymanderingScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        foreach (var sel in BlocObjs) {
-            sel.SetActive(false);
+        var seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+        Debug.LogFormat("[Gerrymandering #{0}] Seed used: {1}", moduleId, seed);
+
+        foreach (var j in BlocObjs) {
+            j.SetActive(false);
         }
 
         TestObj.SetActive(Application.isEditor);
@@ -89,7 +92,7 @@ public class gerrymanderingScript : MonoBehaviour {
         height = 9 - area;
         width = height + 4;
         Debug.LogFormat("<Gerrymandering #{0}> {1}x{2} is the width and height of the map.", moduleId, width, height);
-        minSize = ((height/2) + 1) * width;
+        minSize = ((height/2) - 1) * width + (area == 4 ? 1 : 0);
         maxSize = (height - 2) * (width - 2);
 
         float scaleFactor = 1f;
@@ -102,14 +105,9 @@ public class gerrymanderingScript : MonoBehaviour {
             for (int blok = 0; blok < 117; blok++) {
                 int xPos = blok % 13;
                 int yPos = blok / 13;
-                bool valid = true;
                 
-                if (xPos == 12 | yPos == 8)               { valid = false; }
-                if (area >= 2 & (xPos == 0 | yPos == 0))  { valid = false; gridOffset = 1; }
-                if (area >= 3 & (xPos == 11 | yPos == 7)) { valid = false; }
-                if (area == 4 & (xPos == 1 | yPos == 1))  { valid = false; gridOffset = 2; }
-                
-                //BlocObjs[blok].SetActive(valid);
+                if (area >= 2 & (xPos == 0 | yPos == 0))  { gridOffset = 1; }
+                if (area == 4 & (xPos == 1 | yPos == 1))  { gridOffset = 2; }
             }
         }
         BlocPivot.transform.localScale = new Vector3(scaleFactor, 1f, scaleFactor);
@@ -126,13 +124,11 @@ public class gerrymanderingScript : MonoBehaviour {
 
         Debug.LogFormat("<Gerrymandering #{0}> There will be {1} {2}-minos, which is {3} blocs total.", moduleId, districts, blocSize, chosenSize);
 
-        var seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
         var Answer = new List<FSharpList<Tuple<int, int>>>();
         var Matrix = new Hue[height, width];
         puzzle = new Puzzle(Answer, Matrix, bluePreffered ? Hue.Blue : Hue.Orange);
 
         Debug.Assert(puzzle.Run(new System.Random(seed), blocSize, districts, TimeSpan.FromMilliseconds(100)));
-        Debug.LogFormat("[Gerrymandering #{0}] Seed used: {1}", moduleId, seed);
         
         PrettyMatrix = Cell.ShowMatrix(puzzle.Cells);
         Debug.LogFormat("[Gerrymandering #{0}] Given Matrix:\n{1}", moduleId, PrettyMatrix);
@@ -271,16 +267,15 @@ public class gerrymanderingScript : MonoBehaviour {
     }
 
     bool Pref(int v) {
-        //TODO: rewrite to take into account that Matrix uses [height, width] and that gridOffset exists
-        
-        /*
         int[] subsides = { 0, 0 };
-        
-        for (int q = 0; q < puzzle.Matrix; q++) {
-            var _ = puzzle.Matrix[q / 13, q % 13].IsBlue ? subsides[0]++ : subsides[1]++;
+
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
+                if (lineGrid[(h + gridOffset)*13 + w + gridOffset] == v) {
+                    var _ = puzzle.Matrix[h, w].IsBlue ? subsides[0]++ : subsides[1]++;
+                }
+            }
         }
         return subsides[0] > subsides[1];
-        */
-        return false;
     }
 }
