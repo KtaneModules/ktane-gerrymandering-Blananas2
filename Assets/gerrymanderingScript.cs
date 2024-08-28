@@ -54,18 +54,6 @@ public class gerrymanderingScript : MonoBehaviour {
     int moduleId;
     private bool moduleSolved;
 
-    class Rng : OptimizedClosures.FSharpFunc<int, int, int> {
-        public Rng(Func<int, int, int> func) {
-            _func = func;
-        }
-
-        Func<int, int, int> _func;
-
-        public override int Invoke(int low, int high) {
-            return _func(low, high);
-        }
-    }
-
     void Awake () {
         moduleId = moduleIdCounter++;
         inc = Application.isEditor ? 0 : 1;
@@ -79,6 +67,8 @@ public class gerrymanderingScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        Debug.Log(new System.Random(563382733).Next());
+
         TestObj.SetActive(Application.isEditor);
 
         bluePreffered = UnityEngine.Random.Range(0, 2) == 0;
@@ -123,7 +113,6 @@ public class gerrymanderingScript : MonoBehaviour {
         BlocPivot.transform.localScale = new Vector3(scaleFactor, 1f, scaleFactor);
 
         chosenSize = UnityEngine.Random.Range(minSize, maxSize + 1);
-        //chosenSize = 12; //ZAMN
         while (((chosenSize % 9) * (chosenSize % 7) * (chosenSize % 5) * (chosenSize % 3) != 0) || ((chosenSize % 2) == 0)) {
             chosenSize = UnityEngine.Random.Range(minSize, maxSize + 1);
         }
@@ -132,14 +121,16 @@ public class gerrymanderingScript : MonoBehaviour {
             blocSize -= 1;
         }
         districts = chosenSize / blocSize;
+
         Debug.LogFormat("<Gerrymandering #{0}> There will be {1} {2}-minos, which is {3} blocs total.", moduleId, districts, blocSize, chosenSize);
 
-        var Rand = new Rng((x, y) => UnityEngine.Random.Range(x, y));
+        var seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
         var Answer = new List<FSharpList<Tuple<int, int>>>();
         var Matrix = new Hue[height, width];
         var Puzzle = new Puzzle(Answer, Matrix, bluePreffered ? Hue.Blue : Hue.Orange);
 
-        Debug.Assert(Puzzle.Run(Rand, blocSize, districts, TimeSpan.FromSeconds(1)));
+        Debug.Assert(Puzzle.Run(new System.Random(seed), blocSize, districts, TimeSpan.FromMilliseconds(100)));
+        Debug.LogFormat("[Gerrymandering #{0}] Seed used: {1}", moduleId, seed);
         
         PrettyMatrix = Cell.ShowMatrix(Puzzle.Cells);
         Debug.LogFormat("[Gerrymandering #{0}] Given Matrix:\n{1}", moduleId, PrettyMatrix);
