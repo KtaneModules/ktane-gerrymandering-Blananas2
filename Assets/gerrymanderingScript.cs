@@ -48,6 +48,7 @@ public class gerrymanderingScript : MonoBehaviour {
                        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
                        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
                        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+    Puzzle puzzle;
 
     //Logging
     static int moduleIdCounter = 1;
@@ -67,7 +68,9 @@ public class gerrymanderingScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        Debug.Log(new System.Random(563382733).Next());
+        foreach (var sel in BlocObjs) {
+            sel.SetActive(false);
+        }
 
         TestObj.SetActive(Application.isEditor);
 
@@ -82,13 +85,12 @@ public class gerrymanderingScript : MonoBehaviour {
         else if (area < 60) { area = 2; }
         else if (area < 85) { area = 3; }
         else                { area = 4; }
-        //area = 4; //ZAMN
 
         height = 9 - area;
         width = height + 4;
         Debug.LogFormat("<Gerrymandering #{0}> {1}x{2} is the width and height of the map.", moduleId, width, height);
         minSize = ((height/2) + 1) * width;
-        maxSize = (height - 1) * width;
+        maxSize = (height - 2) * (width - 2);
 
         float scaleFactor = 1f;
         if (area % 2 == 1) {
@@ -107,7 +109,7 @@ public class gerrymanderingScript : MonoBehaviour {
                 if (area >= 3 & (xPos == 11 | yPos == 7)) { valid = false; }
                 if (area == 4 & (xPos == 1 | yPos == 1))  { valid = false; gridOffset = 2; }
                 
-                BlocObjs[blok].SetActive(valid);
+                //BlocObjs[blok].SetActive(valid);
             }
         }
         BlocPivot.transform.localScale = new Vector3(scaleFactor, 1f, scaleFactor);
@@ -127,49 +129,25 @@ public class gerrymanderingScript : MonoBehaviour {
         var seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
         var Answer = new List<FSharpList<Tuple<int, int>>>();
         var Matrix = new Hue[height, width];
-        var Puzzle = new Puzzle(Answer, Matrix, bluePreffered ? Hue.Blue : Hue.Orange);
+        puzzle = new Puzzle(Answer, Matrix, bluePreffered ? Hue.Blue : Hue.Orange);
 
-        Debug.Assert(Puzzle.Run(new System.Random(seed), blocSize, districts, TimeSpan.FromMilliseconds(100)));
+        Debug.Assert(puzzle.Run(new System.Random(seed), blocSize, districts, TimeSpan.FromMilliseconds(100)));
         Debug.LogFormat("[Gerrymandering #{0}] Seed used: {1}", moduleId, seed);
         
-        PrettyMatrix = Cell.ShowMatrix(Puzzle.Cells);
+        PrettyMatrix = Cell.ShowMatrix(puzzle.Cells);
         Debug.LogFormat("[Gerrymandering #{0}] Given Matrix:\n{1}", moduleId, PrettyMatrix);
         ProcessMatrix();
     }
 
     void ProcessMatrix() {
-        string AwfulMatrix = PrettyMatrix.Replace("+", " ").Replace("-", " ").Replace("|", " ").Replace("\n", ";");
-        Debug.LogFormat("<Gerrymandering #{0}> Awfuled: \'{1}\'", moduleId, AwfulMatrix);
-        string[] SplitAwful = AwfulMatrix.Split(';');
-        Debug.LogFormat("<Gerrymandering #{0}> Splitted: \'{1}\'", moduleId, SplitAwful.Join("', '"));
-        int zr = -1;
-        int zc = -1;
-        while (TheColorsOfMatrix.Length != gridOffset*13) {
-            TheColorsOfMatrix += ' ';
+        foreach (var answer in  puzzle.Answer.SelectMany(x => x))
+        {
+            var obj = BlocObjs[(answer.Item1 + gridOffset) * 13 + answer.Item2 + gridOffset];
+            var renderer = obj.GetComponent<MeshRenderer>();
+            var hue = puzzle.Cells[answer.Item1, answer.Item2].Hue;
+            renderer.material = puzzle.Cells[answer.Item1, answer.Item2].Hue.IsBlue ? PartyColors[0] : PartyColors[1];
+            obj.SetActive(true);
         }
-        for (int ar = 1; ar < SplitAwful.Length; ar += 2) {
-            zr++;
-            while (TheColorsOfMatrix.Length % 13 != gridOffset) {
-                TheColorsOfMatrix += ' ';
-            }
-            for (int ac = 2; ac < SplitAwful[ar].Length; ac += 4) {
-                zc++;
-                TheColorsOfMatrix += SplitAwful[ar][ac];
-                switch (SplitAwful[ar][ac]) {
-                    case ' ': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].SetActive(false); break;
-                    case 'X': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].GetComponent<MeshRenderer>().material = PartyColors[0]; break;
-                    case 'O': BlocObjs[(zr + gridOffset)*13 + zc + gridOffset].GetComponent<MeshRenderer>().material = PartyColors[1]; break;
-                }
-            }
-            while (TheColorsOfMatrix.Length % 13 != 0) {
-                TheColorsOfMatrix += ' ';
-            }
-            zc = -1;
-        }
-        while (TheColorsOfMatrix.Length != 117) {
-            TheColorsOfMatrix += ' ';
-        }
-        Debug.LogFormat("<Gerrymandering #{0}> Color: \'{1}\'", moduleId, TheColorsOfMatrix);
     }
 
     void BlocUpdate(KMSelectable Bloc) {
@@ -293,16 +271,16 @@ public class gerrymanderingScript : MonoBehaviour {
     }
 
     bool Pref(int v) {
+        //TODO: rewrite to take into account that Matrix uses [height, width] and that gridOffset exists
+        
+        /*
         int[] subsides = { 0, 0 };
-        for (int q = 0; q < 117; q++) {
-            if (lineGrid[q] == v) {
-                switch (TheColorsOfMatrix[q]) {
-                    case 'X': subsides[0]++; break;
-                    case 'O': subsides[1]++; break;
-                    default: Debug.Log("<Gerrymandering> default case in Pref, this is a bug!!!!!!!!!!"); break;
-                }
-            }
+        
+        for (int q = 0; q < puzzle.Matrix; q++) {
+            var _ = puzzle.Matrix[q / 13, q % 13].IsBlue ? subsides[0]++ : subsides[1]++;
         }
         return subsides[0] > subsides[1];
+        */
+        return false;
     }
 }
