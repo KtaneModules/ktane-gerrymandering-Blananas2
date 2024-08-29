@@ -61,7 +61,7 @@ public class gerrymanderingScript : MonoBehaviour {
 		Test.OnHighlight += delegate { marker++; };
         foreach (KMSelectable Bloc in Blocs) {
             Bloc.OnInteract += delegate () { holding = true; marker += inc; BlocUpdate(Bloc); return false; };
-			Bloc.OnHighlight += delegate { BlocUpdate(Bloc); };
+			Bloc.OnHighlight += delegate { if (holding) { BlocUpdate(Bloc); } };
             Bloc.OnInteractEnded += delegate { holding = false; };
         }
     }
@@ -190,6 +190,7 @@ public class gerrymanderingScript : MonoBehaviour {
                 moduleSolved = true;
                 Debug.LogFormat("[Gerrymandering #{0}] Valid districts given, module solved.", moduleId);
                 GetComponent<KMBombModule>().HandlePass();
+                Audio.PlaySoundAtTransform("done", transform);
             }
         }
 	}

@@ -14,17 +14,17 @@ MonoBehaviour:
   id: gerrymandering
   title: Gerrymandering
   author: Blananas2
-  description: 'Flavor text here
+  description: 'Justice is blind. Well, it turns a blind eye for the right price.
 
 
-    Module by Blananas2
+    Module by Blananas2 & Emik
 
     Manual by Deaf
 
 
-    Module ID: ab
+    Module ID: gerrymandering
 
-    The manual can be found here: https://ktane.timwi.de/HTML/A%20B.html'
+    The manual can be found here: https://ktane.timwi.de/HTML/Gerrymandering.html'
   version: 
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: d9f45ae626ce96140913a69727a4c320, type: 3}
