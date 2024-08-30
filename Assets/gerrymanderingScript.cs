@@ -32,7 +32,9 @@ public class gerrymanderingScript : MonoBehaviour {
     int chosenSize = -1;
     int blocSize = 9;
     int districts = -1;
+    int seed;
     readonly int year = DateTime.Today.Year;
+    bool[] shutUp = { false, false };
     int gridOffset = 0;
     string PrettyMatrix;
     string TheColorsOfMatrix = "";
@@ -64,7 +66,10 @@ public class gerrymanderingScript : MonoBehaviour {
 			Bloc.OnHighlight += delegate { if (holding) { BlocUpdate(Bloc); } };
             Bloc.OnInteractEnded += delegate { holding = false; };
         }
+        Bomb.OnBombExploded += delegate { LogFail("explosion"); };
     }
+
+    void OnDestroy () { LogFail("leaving"); }
 
     // Use this for initialization
     void Start () {
@@ -119,19 +124,31 @@ public class gerrymanderingScript : MonoBehaviour {
         }
         districts = chosenSize / blocSize;
 
-        Debug.LogFormat("[Gerrymandering #{0}] There will be {1} {2}-minos, which is {3} blocs total.", moduleId, districts, blocSize, chosenSize);
+        Debug.LogFormat("[Gerrymandering #{0}] There will be {1} districts with {2} blocs each, which is {3} blocs total.", moduleId, districts, blocSize, chosenSize);
 
         var Answer = new List<FSharpList<Tuple<int, int>>>();
         var Matrix = new Hue[height, width];
         puzzle = new Puzzle(Answer, Matrix, bluePreffered ? Hue.Blue : Hue.Orange);
-        var seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-        Debug.LogFormat("[Gerrymandering #{0}] Seed used: {1}", moduleId, seed);
 
-        Debug.Assert(puzzle.Run(new System.Random(seed), blocSize, districts, TimeSpan.FromMilliseconds(100)));
+        StartCoroutine(GeneratePuzzle());
+        Debug.LogFormat("[Gerrymandering #{0}] Our constitution declares we use this random value: {1}", moduleId, seed);
         
         PrettyMatrix = Cell.ShowMatrix(puzzle.Cells);
-        Debug.LogFormat("[Gerrymandering #{0}] Given Matrix:\n{1}", moduleId, PrettyMatrix);
+        Debug.LogFormat("[Gerrymandering #{0}] Given map:\n{1}", moduleId, PrettyMatrix);
         ProcessMatrix();
+    }
+
+    IEnumerator GeneratePuzzle() {
+        while (true) {
+            seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+
+            if (puzzle.Run(new System.Random(seed), blocSize, districts, TimeSpan.FromMilliseconds(100))) {
+                yield break;
+            }
+
+            Debug.LogFormat("<Gerrymandering #{0}> Seed didn't manage to generate in 100ms: {1}", moduleId, seed);
+            yield return null;
+        }  
     }
 
     void ProcessMatrix() {
@@ -186,7 +203,7 @@ public class gerrymanderingScript : MonoBehaviour {
 		}
         if (lineCount == chosenSize) {
             if (CheckLineValidity()) {
-                Debug.LogFormat("[Gerrymandering #{0}] Submitted lines:\n{1}", moduleId, LogSubmission());
+                Debug.LogFormat("[Gerrymandering #{0}] Submitted districts:\n{1}", moduleId, LogSubmission());
                 moduleSolved = true;
                 Debug.LogFormat("[Gerrymandering #{0}] Valid districts given, module solved.", moduleId);
                 GetComponent<KMBombModule>().HandlePass();
@@ -203,11 +220,17 @@ public class gerrymanderingScript : MonoBehaviour {
             int atIx = lineGrid[gridIx];
             if (atIx == -1 || ids.Contains(atIx)) { continue; }
             if (lineGrid.Where(e => e == atIx).Count() != blocSize) {
-                Debug.Log("<gery> found district with invalid number of blocs");
+                if (!shutUp[0]) {
+                    Debug.LogFormat("<Gerrymandering #{0}> Found district with invalid number of blocs, incorrect.", moduleId); 
+                    shutUp[0] = true;
+                }
                 return false;
             }
             if (!Orth(gridIx, atIx)) {
-                Debug.Log("<gery> found district with blocs not orthogonally adjacent");
+                if (!shutUp[1]) {
+                    Debug.LogFormat("<Gerrymandering #{0}> Found district with blocs not orthogonally adjacent, incorrect.", moduleId);
+                    shutUp[1] = true;
+                }
                 return false;
             }
             sides[Pref(atIx) ? 0 : 1]++;
@@ -283,9 +306,9 @@ public class gerrymanderingScript : MonoBehaviour {
 
     string LogSubmission() {
         string str = "";
-        int[] values = new int[districts];
+        int[] values = new int[chosenSize];
         int discovered = 0;
-        const string bet = "abcdefghijklmnopqrstuvwxyz"; //should be more than enough Clueless
+        const string bet = "abcdefghijklmnopqrstuvwxyzàáâãäåāăąǻȁȃạảấầẩẫậắằẳẵặçćĉċčďđèéêëēĕėęěȅȇẹẻẽếềểễệĝğġģǧĥħĩīĭįìíîïȉȋỉịĵķĺļľŀłñńņňŋòóôõöøōŏőơǫǿȍȏȫȭȱọỏốồổỗộớờởỡợŕŗřȑȓśŝşšșţťŧùúûüțũūŭůűųưȕȗụủứừửữựŵẁẃẅýÿŷȳỳỵỷỹźżžæǽǆĳǉǌœ"; //definitely overboard
 
         string r = "+";
         for (int w = 0; w < width; w++) { r += "---+"; }
@@ -307,6 +330,14 @@ public class gerrymanderingScript : MonoBehaviour {
             str += "|\n" + r;
         }
 
-        return str;
+        return discovered == 0 ? "" : str;
+    }
+
+    void LogFail(string r) {
+        if (moduleSolved) { return; } 
+        string sub = LogSubmission();
+        if (sub != "") {
+            Debug.LogFormat("[Gerrymandering #{0}] Upon {1}, this is what the districts looked like:\n{2}", moduleId, r, LogSubmission());
+        }
     }
 }
