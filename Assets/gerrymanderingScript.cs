@@ -73,6 +73,8 @@ public class gerrymanderingScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        //TODO: Implement some system to more easily "rig" the module for testing purposes. Rigging the seed is fine, but everything else (preffered winner, area, size) is cumbersome as you have to look for it in the code.
+
         foreach (var j in BlocObjs) {
             j.SetActive(false);
         }
@@ -259,7 +261,7 @@ public class gerrymanderingScript : MonoBehaviour {
                 if (lineGrid[q-13] == v && gridTWO[q-13] == -1) {
                     gridTWO[q-13] = 1;
                     count++;
-                    q = 0;
+                    q = -1;
                     continue;
                 }
             }
@@ -267,7 +269,7 @@ public class gerrymanderingScript : MonoBehaviour {
                 if (lineGrid[q-1] == v && gridTWO[q-1] == -1) {
                     gridTWO[q-1] = 1;
                     count++;
-                    q = 0;
+                    q = -1;
                     continue;
                 }
             }
@@ -275,7 +277,7 @@ public class gerrymanderingScript : MonoBehaviour {
                 if (lineGrid[q+1] == v && gridTWO[q+1] == -1) {
                     gridTWO[q+1] = 1;
                     count++;
-                    q = 0;
+                    q = -1;
                     continue;
                 }
             }
@@ -283,7 +285,7 @@ public class gerrymanderingScript : MonoBehaviour {
                 if (lineGrid[q+13] == v && gridTWO[q+13] == -1) {
                     gridTWO[q+13] = 1;
                     count++;
-                    q = 0;
+                    q = -1;
                     continue;
                 }
             }
