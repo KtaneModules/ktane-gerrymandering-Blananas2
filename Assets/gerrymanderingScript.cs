@@ -57,6 +57,9 @@ public class gerrymanderingScript : MonoBehaviour {
     int moduleId;
     private bool moduleSolved;
 
+    // For TP
+    List<List<GameObject>> TPGroupedBlocs;
+
     void Awake () {
         moduleId = moduleIdCounter++;
         inc = Application.isEditor ? 0 : 1;
@@ -162,6 +165,18 @@ public class gerrymanderingScript : MonoBehaviour {
             renderer.material = puzzle.Cells[answer.Item1, answer.Item2].Hue.IsBlue ? PartyColors[0] : PartyColors[1];
             obj.SetActive(true);
         }
+        TPGroupedBlocs = Enumerable.Range(0, BlocObjs.Length / 13)
+            .Select(a => BlocObjs.Skip(13 * a).Take(13).ToList()).ToList(); // Grab basically an entire grid of selectables.
+        while (TPGroupedBlocs.Any() && !TPGroupedBlocs.First().Any(b => b.activeSelf)) // Trim the top-most rows that do not have any selectables.
+            TPGroupedBlocs.RemoveAt(0);
+        while (TPGroupedBlocs.Any() && !TPGroupedBlocs.Last().Any(b => b.activeSelf)) // Trim the bottom-most rows that do not have any selectables.
+            TPGroupedBlocs.RemoveAt(TPGroupedBlocs.Count - 1);
+        while (TPGroupedBlocs.Any(a => a.Any()) && !TPGroupedBlocs.Select(a => a.First()).Any(a => a.activeSelf)) // Trim the left-most columns that do not have any selectables.
+            for (var x = 0; x < TPGroupedBlocs.Count; x++)
+                TPGroupedBlocs[x].RemoveAt(0);
+        while (TPGroupedBlocs.Any(a => a.Any()) && !TPGroupedBlocs.Select(a => a.Last()).Any(a => a.activeSelf)) // Trim the right-most columns that do not have any selectables.
+            for (var x = 0; x < TPGroupedBlocs.Count; x++)
+                TPGroupedBlocs[x].RemoveAt(TPGroupedBlocs[x].Count - 1);
     }
 
     void BlocUpdate(KMSelectable Bloc) {
@@ -341,5 +356,97 @@ public class gerrymanderingScript : MonoBehaviour {
         if (sub != "") {
             Debug.LogFormat("[Gerrymandering #{0}] Upon {1}, this is what the districts looked like:\n{2}", moduleId, r, LogSubmission());
         }
+    }
+
+#pragma warning disable IDE0051 // Remove unused private members
+    static readonly string TwitchHelpMessage = "\"!{0} A1 B1 B2 C1; A2 A3 B3 C3\" [Creates a district with blocs A1, B1, B2, C1; then another with A2, A3, B3, C3. Specify letter as column from left to right, number as row from top to bottom. Semicolons (\";\") separate districts when chaining. Coordinates skip over empty spaces, so long as its entire row or column is empty.]";
+#pragma warning restore IDE0051 // Remove unused private members
+
+    IEnumerator ProcessTwitchCommand(string cmd)
+    {
+        var intCmd = cmd.Trim();
+        var rgxCoord = Regex.Match(intCmd, @"^[a-m][1-9](;?\s?[a-m][1-9])*", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        if (rgxCoord.Success)
+        {
+            var obtainedCoordsSplit = rgxCoord.Value.Split(';').Select(a => a.Trim().Split().ToList()).ToList();
+            var idxesToUse = new List<List<int>>();
+            var BlocObjList = BlocObjs.ToList();
+            foreach (var coordGroup in obtainedCoordsSplit)
+            {
+                var newGroup = new List<int>();
+                foreach (var coord in coordGroup)
+                {
+                    var lowerCasedCoord = coord.ToLowerInvariant();
+                    var rowIdx = "123456789".IndexOf(lowerCasedCoord[1]);
+                    var colIdx = "abcdefghijklm".IndexOf(lowerCasedCoord[0]);
+
+
+                    var oob = rowIdx >= TPGroupedBlocs.Count || rowIdx < 0;
+                    outOfBounds:
+                    if (oob)
+                    {
+                        yield return string.Format("sendtochaterror The specified coordinate {0} corresponds to a bloc outside our country!", coord);
+                        yield break;
+                    }
+                    var obtainedRow = TPGroupedBlocs[rowIdx];
+                    if (colIdx < 0 || colIdx >= obtainedRow.Count)
+                    {
+                        oob = true;
+                        goto outOfBounds;
+                    }
+                    var obtainedObj = obtainedRow[colIdx];
+                    if (!obtainedObj.activeSelf)
+                    {
+                        yield return string.Format("sendtochaterror The specified coordinate {0} corresponds to a bloc outside our country!", coord);
+                        yield break;
+                    }
+                    newGroup.Add(BlocObjList.IndexOf(obtainedObj));
+                }
+                idxesToUse.Add(newGroup);
+            }
+            yield return null;
+            for (var x = 0; x < idxesToUse.Count; x++)
+            {
+                var curGroup = idxesToUse[x];
+                for (var y = 0; y < curGroup.Count; y++)
+                {
+                    var idxInGroup = idxesToUse[x][y];
+                    if (y == 0)
+                        Blocs[idxInGroup].OnInteract();
+                    Blocs[idxInGroup].OnHighlight();
+                    if (y + 1 >= curGroup.Count)
+                    {
+                        Blocs[curGroup.First()].OnInteractEnded();
+                        if (Application.isEditor)
+                            Test.OnHighlight();
+                    }
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+        }
+        yield break;
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        var solution = puzzle.Answer;
+        foreach (var group in solution) // A list of coordinates as a Tuple, in that group.
+        {
+            var allSelectableIdxes = group.Select(a => (a.Item1 + gridOffset) * 13 + a.Item2 + gridOffset).ToList();
+            for (var x = 0; x < allSelectableIdxes.Count; x++)
+            {
+                if (x == 0)
+                    Blocs[allSelectableIdxes[x]].OnInteract();
+                Blocs[allSelectableIdxes[x]].OnHighlight();
+                if (x + 1 >= allSelectableIdxes.Count)
+                {
+                    Blocs[allSelectableIdxes.First()].OnInteractEnded();
+                    if (Application.isEditor)
+                        Test.OnHighlight();
+                }
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
+        yield break;
     }
 }
